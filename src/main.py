@@ -1,6 +1,9 @@
 
+from src.config import config
+
 
 def main():
+    params_db = config()
     pass
 
 
