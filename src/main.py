@@ -22,11 +22,11 @@ def main():
     emp_data = hh.get_employers()
     # print(emp_data_list)
     vac_data = hh.get_vacancies()
-    print(vac_data)
+    # print(vac_data)
 
     params_db = config()
     db = DBManager(params_db)
-    db.insert_data(emp_data, vac_data, params_db)
+    db.insert_data(emp_data, vac_data)
 
 
 if __name__ == '__main__':
