@@ -1,9 +1,10 @@
 
 from src.config import config
 from src.headhunterapi import HeadHunterAPI
+from src.dbmanager import DBManager
 
 def main():
-    list_employers_id = list(
+    list_employers_id = [
         3529,
         78638,
         2748,
@@ -14,9 +15,18 @@ def main():
         907345,
         1471727,
         1057047
-    )
-    params_db = config()
-    hh = HeadHunterAPI(list_employers_id)
+    ]
+
+    hh = HeadHunterAPI()
+    emp_data_list = hh.get_employers(list_employers_id)
+    print(emp_data_list)
+    vac_data_list = hh.get_vacancies()
+    print(vac_data_list)
+
+    # params_db = config()
+    # db = DBManager(params_db)
+
+
 
 
 

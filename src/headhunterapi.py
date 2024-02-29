@@ -56,7 +56,7 @@ class HeadHunterAPI():
             raise Exception(f"Ошибка получения вакансий! Статус: {response.status_code}")
         return response.json()
 
-    def get_vacancies(self, emp_ids: list, pages_count=2):
+    def get_vacancies(self, pages_count=2):
         count_vacancies = 0
         self.vacancies = []
         formatted_vacancies = []
