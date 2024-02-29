@@ -19,14 +19,14 @@ def main():
     ]
 
     hh = HeadHunterAPI(list_employers_id)
-    emp_data_list = hh.get_employers()
-    print(emp_data_list)
-    vac_data_list = hh.get_vacancies()
-    # print(vac_data_list)
+    emp_data = hh.get_employers()
+    # print(emp_data_list)
+    vac_data = hh.get_vacancies()
+    print(vac_data)
 
     params_db = config()
     db = DBManager(params_db)
-
+    db.insert_data(emp_data, vac_data, params_db)
 
 
 if __name__ == '__main__':

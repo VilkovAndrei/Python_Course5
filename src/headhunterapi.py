@@ -35,7 +35,7 @@ class HeadHunterAPI:
         for emp_id in self.emp_ids:
             try:
                 employer_data = self.get_request_emp(emp_id)
-                print(employer_data)
+                # print(employer_data)
             except Exception as error:
                 print(error)
             else:
@@ -86,6 +86,7 @@ class HeadHunterAPI:
             for vacancy in self.vacancies:
                 formatted_vacancy = {
                     "employer": vacancy["employer"]["name"],
+                    "employer_id": employer["id"],
                     "title": vacancy["name"],
                     "url": vacancy["url"],
                     "salary_from": vacancy["salary"]["from"] if vacancy["salary"] else None,
