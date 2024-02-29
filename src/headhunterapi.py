@@ -2,13 +2,14 @@ import requests
 import time
 
 
-class HeadHunterAPI():
+class HeadHunterAPI:
     """Класс для работы с API HeadHunter"""
 
     url_emp = "https://api.hh.ru/employers/"
     url_vac = "https://api.hh.ru/vacancies/"
 
-    def __init__(self, emp_ids: list, area: int =113):
+    def __init__(self, emp_ids: list, area: int = 113):
+        self.emp_ids = emp_ids
 
         self.params_vac = {
             "employer_id": emp_ids[0],
@@ -27,23 +28,26 @@ class HeadHunterAPI():
             raise Exception(f"Ошибка получения данных работодателя {emp_id}! Статус: {response.status_code}")
         return response.json()
 
-    def get_employers(self, emp_ids: list):
-        count_employers = 0
+    def get_employers(self):
+        # count_employers = 0
         self.employers = []
         formatted_employers = []
-        for emp_id in emp_ids:
+        for emp_id in self.emp_ids:
             try:
                 employer_data = self.get_request_emp(emp_id)
+                print(employer_data)
             except Exception as error:
                 print(error)
             else:
-                self.employers.extend(employer_data["items"])
+                self.employers.append(employer_data)
             finally:
                 time.sleep(1)
 
         for employer in self.employers:
+            # print(employer)
+            # hh_id = employer["id"]
             formatted_employer = {
-                "employer_hh_id": employer["id"],
+                "employer_hh_id": employer['id'],
                 "name": employer["name"],
                 "url": employer["alternate_url"],
             }
@@ -61,11 +65,11 @@ class HeadHunterAPI():
         self.vacancies = []
         formatted_vacancies = []
         for employer in self.employers:
-            self.params_vac["employer_id"] = employer["employer_hh_id"]
+            self.params_vac["employer_id"] = employer["id"]
             for page in range(pages_count):
                 page_vacancies = []
                 self.params_vac["page"] = page
-                #  print(f"({self.__class__.__name__}) Парсинг страницы {page} -", end=" ")
+                print(f"({self.__class__.__name__}) Парсинг страницы {page} -", end=" ")
                 try:
                     page_vacancies = self.get_request_vac()
                 except Exception as error:
@@ -78,7 +82,7 @@ class HeadHunterAPI():
                     time.sleep(1)
                 if len(page_vacancies) == 0:
                     break
-            #  print(f"({self.__class__.__name__}) Загружено вакансий всего: {count_vacancies}")
+            print(f"({self.__class__.__name__}) Загружено вакансий всего: {count_vacancies}")
             for vacancy in self.vacancies:
                 formatted_vacancy = {
                     "employer": vacancy["employer"]["name"],

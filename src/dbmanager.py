@@ -41,7 +41,7 @@ class DBManager:
                     title VARCHAR NOT NULL,
                     salary_from INT,
                     salary_to INT,
-                    url TEXT,
+                    url VARCHAR(100),
                     requirement TEXT
                 )
             """)
