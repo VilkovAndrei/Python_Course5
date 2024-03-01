@@ -15,9 +15,7 @@ class DBManager:
     def create_database(self, database_name: str):
         """Создание базы данных и таблиц для сохранения данных о работодателях и вакансиях."""
 
-        #conn = psycopg2.connect(**params)
         self.conn.autocommit = True
-        #cur = conn.cursor()
 
         self.cur.execute(f"DROP DATABASE IF EXISTS {database_name}")
         self.cur.execute(f"CREATE DATABASE {database_name}")
@@ -49,13 +47,11 @@ class DBManager:
             """)
 
         self.conn.commit()
-        print(f"БД {database_name} успешно создана")
-        # conn.close()
+        print(f"\nБД {database_name} успешно создана")
 
     def insert_data(self, emp_data: list[dict], vac_data: list[dict]):
         """Заполнение таблиц данными."""
-        # conn = psycopg2.connect(dbname=self.db_name, **params)
-        # conn.autocommit = True
+
         with self.conn.cursor() as cur:
             for emp in emp_data:
                 cur.execute(
@@ -63,6 +59,7 @@ class DBManager:
                     (emp["name"], emp["employer_hh_id"])
                 )
                 employer_id = cur.fetchone()[0]
+                # print(f'employer_id = {employer_id}')
                 for vac in vac_data:
                     if vac['employer_id'] == emp["employer_hh_id"]:
                         cur.execute(
@@ -71,15 +68,15 @@ class DBManager:
                         )
 
         self.conn.commit()
-        print(f"БД {self.db_name} успешно заполнена")
+        print(f"\nБД {self.db_name} успешно заполнена")
 
     def get_companies_and_vacancies_count(self) -> list[dict]:
         """Получает из базы данных список всех компаний и количество вакансий у каждой компании."""
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT name, COUNT(*) AS count_vacancies FROM employers 
-                    JOIN vacancies USING(employer_id) GROUP BY name
+                SELECT employers.name, COUNT(*) AS count_vacancies FROM vacancies
+                    JOIN employers USING(employer_id) GROUP BY employers.name
                 """
             )
             data = cur.fetchall()

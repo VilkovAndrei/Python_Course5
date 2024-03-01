@@ -5,32 +5,32 @@ from src.dbmanager import DBManager
 
 
 def main():
+    """Список выбранных работодателей"""
     list_employers_id = [
         '64174',
-        # '78638',
-        # '2748',
-        # '3127',
-        # '1740',
+        '78638',
+        '2748',
+        '3127',
+        '1740',
         '93051',
-        # '4219',
+        '4219',
         '907345',
         '1471727',
         '1057047'
     ]
-
+    """Получаем данные от api.hh.ru"""
     hh = HeadHunterAPI(list_employers_id)
     emp_data = hh.get_employers()
-    # print(emp_data_list)
     vac_data = hh.get_vacancies()
-    # print(vac_data)
 
+    """Работаем с БД PostgreSQL"""
     params_db = config()
     try:
         db = DBManager(params_db)
         db.insert_data(emp_data, vac_data)
 
         data_dict = db.get_companies_and_vacancies_count()
-        print("Список компаний и количества вакансий:")
+        print(f"\nСписок компаний и количества вакансий:")
         print(data_dict)
 
         data_dict = db.get_all_vacancies()
