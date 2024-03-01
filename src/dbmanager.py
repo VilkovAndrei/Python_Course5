@@ -102,14 +102,41 @@ class DBManager:
 
         return data_dict
 
-    def get_avg_salary(self):
-        """Получает среднюю зарплату по вакансиям, у которых указана зарплата."""
-        pass
+    def get_avg_salary(self) -> int:
+        """Получает среднюю зарплату по вакансиям."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT AVG(salary_from) FROM vacancies
+                """
+            )
+            avg_salary = int(cur.fetchone()[0])
 
-    def get_vacancies_with_higher_salary(self):
+        return avg_salary
+
+    def get_vacancies_with_higher_salary(self) -> list[dict]:
         """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT employers.name, title, salary_from, url  FROM vacancies
+                    JOIN employers  USING(employer_id)
+                    WHERE salary_from > ANY(SELECT AVG(salary_from) FROM vacancies)
+                    ORDER BY salary_from DESC
+                """
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "title": d[1], "salary_from": d[2], "url": d[3]} for d in data]
 
-    def get_vacancies_with_keyword(self, keywords: tuple):
+        return data_dict
+
+    def get_vacancies_with_keyword(self, keyword: str):
         """Получает список всех вакансий, в названии которых содержатся переданные в метод слова."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                f"SELECT employers.name, title, salary_from, url  FROM vacancies JOIN employers  USING(employer_id) WHERE title LIKE '%{keyword}%'"
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "title": d[1], "salary_from": d[2], "url": d[3]} for d in data]
+
+        return data_dict

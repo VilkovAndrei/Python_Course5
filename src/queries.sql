@@ -32,3 +32,12 @@ SELECT name, COUNT(*) AS count_vacancies FROM employers
 """названия вакансии и зарплаты и ссылки на вакансию."""
 SELECT employers.name, title, salary_from, url  FROM vacancies
     JOIN employers  USING(employer_id)
+
+"""Получаем среднюю зарплату по вакансиям."""
+SELECT AVG(salary_from) FROM vacancies
+
+"""Получаем список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
+SELECT employers.name, title, salary_from, url  FROM vacancies
+    JOIN employers  USING(employer_id)
+    WHERE salary_from > ANY(SELECT AVG(salary_from) FROM vacancies)
+    ORDER BY salary_from DESC

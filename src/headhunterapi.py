@@ -13,7 +13,7 @@ class HeadHunterAPI:
 
         self.params_vac = {
             "employer_id": emp_ids[0],
-            "per_page": 100,
+            "per_page": 20,
             "page": int,
             "only_with_salary": True,
             "area": area,
@@ -60,7 +60,7 @@ class HeadHunterAPI:
             raise Exception(f"Ошибка получения вакансий! Статус: {response.status_code}")
         return response.json()
 
-    def get_vacancies(self, pages_count=2):
+    def get_vacancies(self, pages_count=5):
         count_vacancies = 0
         self.vacancies = []
         formatted_vacancies = []
@@ -79,7 +79,7 @@ class HeadHunterAPI:
                     print(f"Загружено вакансий: {len(page_vacancies)}")
                     count_vacancies += len(page_vacancies)
                 finally:
-                    time.sleep(1)
+                    time.sleep(0.5)
                 if len(page_vacancies) == 0:
                     break
             print(f"({self.__class__.__name__}) Загружено вакансий всего: {count_vacancies}")
