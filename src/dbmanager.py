@@ -15,9 +15,7 @@ class DBManager:
     def create_database(self, database_name: str):
         """Создание базы данных и таблиц для сохранения данных о работодателях и вакансиях."""
 
-        #conn = psycopg2.connect(**params)
         self.conn.autocommit = True
-        #cur = conn.cursor()
 
         self.cur.execute(f"DROP DATABASE IF EXISTS {database_name}")
         self.cur.execute(f"CREATE DATABASE {database_name}")
@@ -49,13 +47,11 @@ class DBManager:
             """)
 
         self.conn.commit()
-        print(f"БД {database_name} успешно создана")
-        # conn.close()
+        print(f"\nБД {database_name} успешно создана")
 
     def insert_data(self, emp_data: list[dict], vac_data: list[dict]):
         """Заполнение таблиц данными."""
-        # conn = psycopg2.connect(dbname=self.db_name, **params)
-        # conn.autocommit = True
+
         with self.conn.cursor() as cur:
             for emp in emp_data:
                 cur.execute(
@@ -63,6 +59,7 @@ class DBManager:
                     (emp["name"], emp["employer_hh_id"])
                 )
                 employer_id = cur.fetchone()[0]
+                # print(f'employer_id = {employer_id}')
                 for vac in vac_data:
                     if vac['employer_id'] == emp["employer_hh_id"]:
                         cur.execute(
@@ -71,15 +68,15 @@ class DBManager:
                         )
 
         self.conn.commit()
-        print(f"БД {self.db_name} успешно заполнена")
+        print(f"\nБД {self.db_name} успешно заполнена")
 
-    def get_companies_and_vacancies_count(self):
+    def get_companies_and_vacancies_count(self) -> list[dict]:
         """Получает из базы данных список всех компаний и количество вакансий у каждой компании."""
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT name, COUNT(*) AS count_vacancies FROM employers 
-                    JOIN vacancies USING(employer_id) GROUP BY name
+                SELECT employers.name, COUNT(*) AS count_vacancies FROM vacancies
+                    JOIN employers USING(employer_id) GROUP BY employers.name
                 """
             )
             data = cur.fetchall()
@@ -87,19 +84,56 @@ class DBManager:
 
         return data_dict
 
-    def get_all_vacancies(self):
+    def get_all_vacancies(self) -> list[dict]:
         """Получает из базы данных список всех вакансий с указанием названия компании,
          названия вакансии и зарплаты и ссылки на вакансию."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT employers.name, title, salary_from, url  FROM vacancies
+                    JOIN employers  USING(employer_id)
+                """
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "title": d[1], "salary_from": d[2], "url": d[3]} for d in data]
 
-    def get_avg_salary(self):
-        """Получает среднюю зарплату по вакансиям, у которых указана зарплата."""
-        pass
+        return data_dict
 
-    def get_vacancies_with_higher_salary(self):
+    def get_avg_salary(self) -> int:
+        """Получает среднюю зарплату по вакансиям."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT AVG(salary_from) FROM vacancies
+                """
+            )
+            avg_salary = int(cur.fetchone()[0])
+
+        return avg_salary
+
+    def get_vacancies_with_higher_salary(self) -> list[dict]:
         """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT employers.name, title, salary_from, url  FROM vacancies
+                    JOIN employers  USING(employer_id)
+                    WHERE salary_from > ANY(SELECT AVG(salary_from) FROM vacancies)
+                    ORDER BY salary_from DESC
+                """
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "title": d[1], "salary_from": d[2], "url": d[3]} for d in data]
 
-    def get_vacancies_with_keyword(self, keywords: tuple):
+        return data_dict
+
+    def get_vacancies_with_keyword(self, keyword: str):
         """Получает список всех вакансий, в названии которых содержатся переданные в метод слова."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                f"SELECT employers.name, title, salary_from, url  FROM vacancies JOIN employers  USING(employer_id) WHERE title LIKE '%{keyword}%'"
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "title": d[1], "salary_from": d[2], "url": d[3]} for d in data]
+
+        return data_dict
