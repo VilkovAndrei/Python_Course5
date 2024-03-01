@@ -73,7 +73,7 @@ class DBManager:
         self.conn.commit()
         print(f"БД {self.db_name} успешно заполнена")
 
-    def get_companies_and_vacancies_count(self):
+    def get_companies_and_vacancies_count(self) -> list[dict]:
         """Получает из базы данных список всех компаний и количество вакансий у каждой компании."""
         with self.conn.cursor() as cur:
             cur.execute(
@@ -87,10 +87,20 @@ class DBManager:
 
         return data_dict
 
-    def get_all_vacancies(self):
+    def get_all_vacancies(self) -> list[dict]:
         """Получает из базы данных список всех вакансий с указанием названия компании,
          названия вакансии и зарплаты и ссылки на вакансию."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT employers.name, title, salary_from, url  FROM vacancies
+                    JOIN employers  USING(employer_id)
+                """
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "title": d[1], "salary_from": d[2], "url": d[3]} for d in data]
+
+        return data_dict
 
     def get_avg_salary(self):
         """Получает среднюю зарплату по вакансиям, у которых указана зарплата."""

@@ -31,6 +31,9 @@ def main():
         data_dict = db.get_companies_and_vacancies_count()
         print("Список компаний и количества вакансий:")
         print(data_dict)
+        data_dict = db.get_all_vacancies()
+        print("Список вакансий:")
+        print(data_dict)
 
         db.conn.close()
     except(Exception, psycopg2.DatabaseError) as error:

@@ -24,3 +24,11 @@ f"INSERT INTO employers (name, employer_hh_id, url) VALUES (%s, %s, %s) RETURNIN
 f"INSERT INTO vacancies (employer_id, title, salary_from, salary_to, url, requirement) VALUES (%s, %s, %s, %s, %s, %s)",
     (employer_id, vac["title"], vac["salary_from"], vac["salary_to"], vac["url"], vac["requirement"])
 
+"""Получаем из базы данных список всех компаний и количество вакансий у каждой компании."""
+SELECT name, COUNT(*) AS count_vacancies FROM employers
+    JOIN vacancies USING(employer_id) GROUP BY name
+
+"""Получаем из базы данных список всех вакансий с указанием названия компании,"""
+"""названия вакансии и зарплаты и ссылки на вакансию."""
+SELECT employers.name, title, salary_from, url  FROM vacancies
+    JOIN employers  USING(employer_id)
