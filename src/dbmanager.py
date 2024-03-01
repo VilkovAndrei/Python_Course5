@@ -44,12 +44,12 @@ class DBManager:
                     title VARCHAR NOT NULL,
                     salary_from INT,
                     salary_to INT,
-                    url VARCHAR(100),
-                    requirement TEXT
+                    url VARCHAR(100)
                 )
             """)
 
         self.conn.commit()
+        print(f"БД {database_name} успешно создана")
         # conn.close()
 
     def insert_data(self, emp_data: list[dict], vac_data: list[dict]):
@@ -66,16 +66,26 @@ class DBManager:
                 for vac in vac_data:
                     if vac['employer_id'] == emp["employer_hh_id"]:
                         cur.execute(
-                            f"INSERT INTO vacancies (employer_id, title, salary_from, salary_to, url, requirement) VALUES (%s, %s, %s, %s, %s, %s)",
-                            (employer_id, vac["title"], vac["salary_from"], vac["salary_to"], vac["url"], vac["requirement"])
+                            f"INSERT INTO vacancies (employer_id, title, salary_from, salary_to, url) VALUES (%s, %s, %s, %s, %s)",
+                            (employer_id, vac["title"], vac["salary_from"], vac["salary_to"], vac["url"])
                         )
 
         self.conn.commit()
-        self.conn.close()
+        print(f"БД {self.db_name} успешно заполнена")
 
     def get_companies_and_vacancies_count(self):
         """Получает из базы данных список всех компаний и количество вакансий у каждой компании."""
-        pass
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT name, COUNT(*) AS count_vacancies FROM employers 
+                    JOIN vacancies USING(employer_id) GROUP BY name
+                """
+            )
+            data = cur.fetchall()
+            data_dict = [{"company": d[0], "count_vacancies": d[1]} for d in data]
+
+        return data_dict
 
     def get_all_vacancies(self):
         """Получает из базы данных список всех вакансий с указанием названия компании,

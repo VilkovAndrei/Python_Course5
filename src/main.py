@@ -1,4 +1,4 @@
-
+import psycopg2
 from src.config import config
 from src.headhunterapi import HeadHunterAPI
 from src.dbmanager import DBManager
@@ -25,8 +25,16 @@ def main():
     # print(vac_data)
 
     params_db = config()
-    db = DBManager(params_db)
-    db.insert_data(emp_data, vac_data)
+    try:
+        db = DBManager(params_db)
+        db.insert_data(emp_data, vac_data)
+        data_dict = db.get_companies_and_vacancies_count()
+        print("Список компаний и количества вакансий:")
+        print(data_dict)
+
+        db.conn.close()
+    except(Exception, psycopg2.DatabaseError) as error:
+        print(error)
 
 
 if __name__ == '__main__':
