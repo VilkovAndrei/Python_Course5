@@ -18,15 +18,22 @@ def main():
         '1471727',
         '1057047'
     ]
+
     """Получаем данные от api.hh.ru"""
+
+    print("Получаем данные от api.hh.ru. Подождите, пожалуйста!")
     hh = HeadHunterAPI(list_employers_id)
     emp_data = hh.get_employers()
     vac_data = hh.get_vacancies()
 
     """Работаем с БД PostgreSQL"""
+
     params_db = config()
+    print("\nРаботаем с БД PostgreSQL")
+    new_db_name = input("\nВведите название создаваемой БД:\n")
+    # new_db_name = 'hh_db'
     try:
-        db = DBManager(params_db)
+        db = DBManager(params_db, new_db_name)
         db.insert_data(emp_data, vac_data)
 
         data_dict = db.get_companies_and_vacancies_count()
@@ -44,8 +51,10 @@ def main():
         print("\nСписок вакансий с зарплатой выше средней:")
         print(data_dict)
 
-        data_dict = db.get_vacancies_with_keyword('инженер')
-        print("\nСписок вакансий, отфильтрованных по слову 'инженер':")
+        keyword = input("\nВведите ключевое слово для поиска по вакансиям:\n")
+
+        data_dict = db.get_vacancies_with_keyword(keyword)
+        print(f"\nСписок вакансий, отфильтрованных по слову {keyword}:")
         print(data_dict)
 
         db.conn.close()

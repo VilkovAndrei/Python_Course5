@@ -4,13 +4,12 @@ import psycopg2
 class DBManager:
     """Класс для работы с базой данных PostgreSQL."""
 
-    def __init__(self, params: dict):
+    def __init__(self, params: dict, db_name):
         self.conn = psycopg2.connect(**params)
         self.cur = self.conn.cursor()
-        self.db_name = 'hh_db'
+        self.db_name = db_name
         self.params = params
         self.create_database(self.db_name)
-        self.params['dbname'] = self.db_name
 
     def create_database(self, database_name: str):
         """Создание базы данных и таблиц для сохранения данных о работодателях и вакансиях."""
