@@ -39,7 +39,7 @@ class HeadHunterAPI:
             else:
                 self.employers.append(employer_data)
             finally:
-                time.sleep(0.5)
+                time.sleep(0.2)
 
         for employer in self.employers:
             formatted_employer = {
@@ -64,25 +64,22 @@ class HeadHunterAPI:
         for employer in self.employers:
             employer_vacancies = []
             self.params_vac["employer_id"] = employer["id"]
-            # print(f"employer_id={employer['id']}")
             for page in range(pages_count):
                 page_vacancies = []
                 self.params_vac["page"] = page
-                # print(f"({self.__class__.__name__}) Парсинг страницы {page} -", end=" ")
                 try:
                     page_vacancies = self.get_request_vac()
                 except Exception as error:
                     print(error)
                 else:
                     employer_vacancies.extend(page_vacancies["items"])
-                    # print(f"Загружено вакансий: {len(page_vacancies)}")
                     count_vacancies += len(page_vacancies)
                 finally:
-                    time.sleep(0.5)
+                    time.sleep(0.2)
                 if len(page_vacancies) == 0:
                     break
             self.vacancies.append(employer_vacancies)
-            # print(f"({self.__class__.__name__}) Загружено вакансий всего: {count_vacancies}")
+            print(f"({self.__class__.__name__}) Загружено вакансий всего: {count_vacancies}")
 
             for vacancy in employer_vacancies:
                 formatted_vacancy = {
